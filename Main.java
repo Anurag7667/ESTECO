@@ -7,16 +7,15 @@ public class Main {
         System.out.print("Enter the numbers separated by comma: ");
         String input = scanner.nextLine();
 
-        String result = add(input);
+        String result = add(input.split(","));
         System.out.println("Sum: " + result);
     }
 
-    public static String add(String input) {
-        if (input.isEmpty()) {
+    public static String add(String... numbers) {
+        if (numbers.length == 0) {
             return "0";
         }
 
-        String[] numbers = input.split(",");
         double sum = 0.0;
 
         for (String number : numbers) {
