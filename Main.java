@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -11,7 +13,6 @@ public class Main {
         System.out.println("Sum: " + result);
 
         scanner.close(); // Close the scanner
-
     }
 
     public static String add(String input) {
@@ -27,6 +28,8 @@ public class Main {
 
         double sum = 0.0;
         int invalidPosition = -1;
+        List<String> errorMessages = new ArrayList<>();
+        StringBuilder negativeNumbers = new StringBuilder();
 
         for (int i = 0; i < numbers.length; i++) {
             String number = numbers[i].trim();
@@ -36,17 +39,35 @@ public class Main {
                 break;
             }
 
+            double parsedNumber;
             try {
-                sum += Double.parseDouble(number);
+                parsedNumber = Double.parseDouble(number);
             } catch (NumberFormatException e) {
                 invalidPosition = i;
                 break;
             }
+
+            if (parsedNumber < 0) {
+                if (negativeNumbers.length() > 0) {
+                    negativeNumbers.append(", ");
+                }
+                negativeNumbers.append(parsedNumber);
+            }
+
+            sum += parsedNumber;
         }
 
         if (invalidPosition != -1) {
-            return "Number expected but '" + numbers[invalidPosition] + "' found at position "
-                    + input.indexOf(numbers[invalidPosition]) + ".";
+            errorMessages.add("Number expected but '" + numbers[invalidPosition] + "' found at position "
+                    + input.indexOf(numbers[invalidPosition]) + ".");
+        }
+
+        if (negativeNumbers.length() > 0) {
+            errorMessages.add("Negative not allowed: " + negativeNumbers.toString());
+        }
+
+        if (!errorMessages.isEmpty()) {
+            return String.join("\n", errorMessages);
         }
 
         return Double.toString(sum);
