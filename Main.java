@@ -24,10 +24,21 @@ public class Main {
             return "Number expected but EOF found.";
         }
 
-        String[] numbers = input.split("[,\n]");
+        String delimiter = ",";
+        String numbersString = input;
+
+        if (input.startsWith("//")) {
+            int delimiterEndIndex = input.indexOf("\n");
+            if (delimiterEndIndex == -1) {
+                return "Invalid delimiter format.";
+            }
+            delimiter = input.substring(2, delimiterEndIndex);
+            numbersString = input.substring(delimiterEndIndex + 1);
+        }
+
+        String[] numbers = numbersString.split("[,\n" + delimiter + "]");
 
         double sum = 0.0;
-        int invalidPosition = -1;
         List<String> errorMessages = new ArrayList<>();
         StringBuilder negativeNumbers = new StringBuilder();
 
@@ -35,35 +46,27 @@ public class Main {
             String number = numbers[i].trim();
 
             if (number.isEmpty()) {
-                invalidPosition = i;
-                break;
+                errorMessages.add("'" + delimiter + "' expected but ',' found at position " + (i + 1) + ".");
+                continue;
             }
 
             double parsedNumber;
             try {
                 parsedNumber = Double.parseDouble(number);
             } catch (NumberFormatException e) {
-                invalidPosition = i;
-                break;
+                errorMessages.add("Invalid number format: " + number);
+                continue;
             }
 
             if (parsedNumber < 0) {
-                if (negativeNumbers.length() > 0) {
-                    negativeNumbers.append(", ");
-                }
-                negativeNumbers.append(parsedNumber);
+                negativeNumbers.append(parsedNumber).append("\n");
             }
 
             sum += parsedNumber;
         }
 
-        if (invalidPosition != -1) {
-            errorMessages.add("Number expected but '" + numbers[invalidPosition] + "' found at position "
-                    + input.indexOf(numbers[invalidPosition]) + ".");
-        }
-
         if (negativeNumbers.length() > 0) {
-            errorMessages.add("Negative not allowed: " + negativeNumbers.toString());
+            errorMessages.add("Negative not allowed: " + negativeNumbers.toString().trim());
         }
 
         if (!errorMessages.isEmpty()) {
